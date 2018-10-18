@@ -128,7 +128,7 @@ public class ExtendActModelServiceImpl implements ExtendActModelerService {
 		List<Process> processes = bpmnModel.getProcesses();
 		if(processes.size()==0){
 			throw new MyException("没有设计流程图!");
-		}
+	}
 		Process process = processes.get(0);
 		//设置流程属性
         ExtendActModelEntity extModel = extendActModelDao.getModelAndBusInfo(modelId);
