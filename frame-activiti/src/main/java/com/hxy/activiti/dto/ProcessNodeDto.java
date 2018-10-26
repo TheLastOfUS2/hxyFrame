@@ -18,7 +18,7 @@ public class ProcessNodeDto {
     private String nodeName;
 
     /**
-     * 节点类型 =1开始节点 2=审批节点 3=分支 4=连线 5=结束节点
+     * 节点类型 =1开始节点 2=审批节点 3=分支 4=连线 5=结束节点.6=并发节点
      */
     private String nodeType;
 

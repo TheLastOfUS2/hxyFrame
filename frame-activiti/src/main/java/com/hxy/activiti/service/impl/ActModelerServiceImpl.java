@@ -182,6 +182,10 @@ public class ActModelerServiceImpl implements ActModelerService{
                 tempmap.put("type", "3");
                 tempmap.put("treeName",flowElement.getName());
                 tempmap.put("icon", contextPath+"/statics/images/sys/exclusive.png");
+            }else if(flowElement instanceof ParallelGateway){
+                tempmap.put("type", "6");
+                tempmap.put("treeName",flowElement.getName());
+                tempmap.put("icon", contextPath+"/statics/images/sys/parallel.png");
             } else if(flowElement instanceof SequenceFlow){
                 tempmap.put("type", "4");
                 tempmap.put("treeName",flowElement.getName());

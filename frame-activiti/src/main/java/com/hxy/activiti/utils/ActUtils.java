@@ -43,9 +43,21 @@ import java.util.*;
  * @Date 2017/7/28
  */
 public class ActUtils {
+    //部署与流程定义(静态信息)
+    //1.查询引擎已知的部署与流程定义。
+    //2.暂停或激活部署中的某些流程，或整个部署。暂停意味着不能再对它进行操作，激活是其反操作。
+    //3.读取各种资源，比如部署中保存的文件，或者引擎自动生成的流程图。
+    //4.读取POJO版本的流程定义。使用它可以用Java而不是xml的方式检查流程。
     private static RepositoryService repositoryService = (RepositoryService) SpringContextUtils.getBean("repositoryService");
+    //暴露历史数据，如流程实例启动时间，谁在执行哪个任务，完成任务花费的事件，每个流程实例的执行路径，等等
     private static HistoryService historyService = (HistoryService) SpringContextUtils.getBean("historyService");
+    //用来启动流程实例
+    //提供了许多操作用于“通知”流程实例，告知已经接收到外部触发，使流程实例可以继续运行。
     private static RuntimeService runtimeService = (RuntimeService) SpringContextUtils.getBean("runtimeService");
+    //1.查询分派给用户或组的任务
+    //2.创建standalone（独立运行）任务。这是一种没有关联到流程实例的任务。
+    //3.决定任务的执行用户（assignee），或者将用户通过某种方式与任务关联。
+    //4.认领（claim）与完成（complete）任务。认领是指某人决定成为任务的执行用户，也即他将会完成这个任务。完成任务是指“做这个任务要求的工作”，通常是填写某种表单。
     private static TaskService taskService = (TaskService) SpringContextUtils.getBean("taskService");
     private static ObjectMapper objectMapper = (ObjectMapper) SpringContextUtils.getBean("objectMapper");
     private static ProcessEngineConfiguration processEngineConfiguration = (ProcessEngineConfiguration) SpringContextUtils.getBean("processEngineConfiguration");
@@ -123,7 +135,7 @@ public class ActUtils {
             characteristics.setInputDataItem("");
             //清空变量
             characteristics.setElementVariable("");
-            //设置为顺序接收（true 表示不按顺序执行）
+            //设置为顺序接收（true 表示按顺序执行）
             characteristics.setSequential(true);
             //清空条件
             characteristics.setCompletionCondition("");
@@ -196,6 +208,7 @@ public class ActUtils {
                     }
                 }
             }
+            //流程图生成器
             ProcessDiagramGenerator diagramGenerator = processEngineConfiguration.getProcessDiagramGenerator();
             List<String> activeActivityIds = new ArrayList<String>();
             List<org.activiti.engine.task.Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
@@ -279,7 +292,7 @@ public class ActUtils {
                     }
                 }
 
-            } else if ("parallelGateWay".equals(type)) {
+            } else if ("parallelGateway".equals(type)) {
                 //并行路由
                 List<PvmTransition> outgoingTransitions = pvmActivity.getOutgoingTransitions();
                 for(PvmTransition tr2:outgoingTransitions){

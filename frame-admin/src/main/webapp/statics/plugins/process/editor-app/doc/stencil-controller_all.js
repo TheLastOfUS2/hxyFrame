@@ -64,7 +64,7 @@ angular.module('activitiModeler')
              */
             $http({method: 'GET', url: KISBPM.URL.getStencilSet()}).success(function (data, status, headers, config) {
 
-            	var quickMenuDefinition = ['UserTask', 'EndNoneEvent', 'ExclusiveGateway',
+            	var quickMenuDefinition = ['UserTask', 'EndNoneEvent', 'ExclusiveGateway','ParallelGateway',
             	                           'CatchTimerEvent', 'ThrowNoneEvent', 'TextAnnotation',
             	                           'SequenceFlow', 'Association'];
 

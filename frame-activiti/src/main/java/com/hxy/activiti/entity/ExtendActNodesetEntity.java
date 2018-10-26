@@ -37,7 +37,7 @@ public class ExtendActNodesetEntity implements Serializable {
 	private String defid;
 	// 流程节点id
 	private String nodeId;
-	//流程节点类型 =1开始节点 2=审批节点 3=分支 4=连线 5=结束节点
+	//流程节点类型 =1开始节点 2=审批节点 3=分支 4=连线 5=结束节点.6并发
 	private String nodeType;
 	//节点行为 2 的时候 ,1=审批 2=会签
 	private String nodeAction;

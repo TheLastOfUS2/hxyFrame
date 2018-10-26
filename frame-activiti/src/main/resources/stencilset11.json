@@ -1310,6 +1310,9 @@
     }, {
       "role" : "GatewaysMorph",
       "baseMorphs" : [ "ExclusiveGateway" ]
+    },{
+      "role" : "GatewaysMorph",
+      "baseMorphs" : [ "ParallelGateway" ]
     }, {
       "role" : "StartEventsMorph",
       "baseMorphs" : [ "StartNoneEvent" ]

@@ -68,14 +68,14 @@ angular.module('activitiModeler')
             	                           'CatchTimerEvent', 'ThrowNoneEvent', 'TextAnnotation',
             	                           'SequenceFlow', 'Association'];*/
 
-                var quickMenuDefinition = ['UserTask','EndNoneEvent', 'ExclusiveGateway', 'SequenceFlow'];
+                var quickMenuDefinition = ['UserTask','EndNoneEvent', 'ExclusiveGateway', 'SequenceFlow','ParallelGateway'];
 
             	//var ignoreForPaletteDefinition = ['SequenceFlow', 'MessageFlow', 'Association', 'DataAssociation', 'DataStore', 'SendTask'];
                 //var ignoreForPaletteDefinition = ['MessageFlow', 'Association', 'DataAssociation', 'DataStore', 'SendTask'];
 
                 var ignoreForPaletteDefinition = ['StartTimerEvent', 'StartSignalEvent', 'StartMessageEvent', 'StartErrorEvent',
                     'ServiceTask', 'ScriptTask', 'BusinessRule', 'ReceiveTask', 'ManualTask', 'MailTask', 'CamelTask',
-                    'MuleTask', 'SendTask', 'SubProcess', 'EventSubProcess', 'CallActivity', 'ParallelGateway', 'InclusiveGateway',
+                    'MuleTask', 'SendTask', 'SubProcess', 'EventSubProcess', 'CallActivity', 'InclusiveGateway',
                     'EventGateway', 'BoundaryErrorEvent', 'BoundaryTimerEvent', 'BoundarySignalEvent', 'BoundaryMessageEvent',
                     'BoundaryCancelEvent', 'BoundaryCompensationEvent', 'CatchTimerEvent', 'CatchSignalEvent', 'CatchMessageEvent',
                     'ThrowNoneEvent', 'ThrowSignalEvent', 'EndErrorEvent', 'EndCancelEvent', 'EndTerminateEvent', 'Pool',

@@ -50,6 +50,7 @@
 													<option value="3">分支</option>
 													<option value="4">连线 </option>
 													<option value="5">结束节点 </option>
+													<option value="6">并发</option>
 												</select>
 											</span>
 										</div>
