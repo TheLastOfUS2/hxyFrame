@@ -8,7 +8,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="frame-activiti" />
         <module name="frame-admin" />
-        <module name="frame-app" />
         <module name="frame-casServer" />
         <module name="frame-common" />
         <module name="frame-generator" />
