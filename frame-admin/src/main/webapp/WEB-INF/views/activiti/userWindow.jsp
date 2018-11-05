@@ -98,6 +98,7 @@
 		//父级搜索表单
         var userTab=$(parent.document.getElementById("main-container")).find("#userTab tbody");
 		var html ="";
+		var htmlForBranch ="";
         var count =0;
         $("#table-list tbody input:checkbox:checked,#table-list tbody input:radio:checked").each(function () {
 			var id = $(this).val();
@@ -110,6 +111,8 @@
             })
 			if(flag){
                 var tds =$(this).parent().siblings();
+                var nodeId = '${nodeId}';
+                var nodeName = '${nodeName}';
                 html+="<tr id='"+id+"'>";
                 html+="  <td>"+tds[0].innerText+"</td>";
                 html+="  <td style='display: none'>";
@@ -117,17 +120,42 @@
                 html+="  </td>";
                 html+="  <td>"+tds[1].innerText+"</td>";
                 html+="  <td>"+tds[2].innerText+"</td>";
+                if (nodeName!=""){
+                    console.log(nodeName);
+ 	               html+="  <td>"+nodeName+"</td>";
+				}
                 html+='<td><button type="button" onclick="delUser(this)" class="btn btn-xs btn-white btn-danger"><i class="fa fa-trash-o"></i> 删 除 </button></td>';
+                html+="  <td style='display:none;'>"+"</td>";
                 html+="</tr>";
+				console.log(html);
+
+                htmlForBranch+="<tr id='"+id+"'>";
+                htmlForBranch+="  <td>"+tds[0].innerText+"</td>";
+                htmlForBranch+="  <td style='display: none'>";
+                htmlForBranch+="  	<input name='userIds' value='"+id+"'/>";
+                htmlForBranch+="  </td>";
+                htmlForBranch+="  <td>"+tds[1].innerText+"</td>";
+                htmlForBranch+="  <td>"+tds[2].innerText+"</td>";
+                if (nodeName!=""){
+                    htmlForBranch+="  <td>"+nodeName+"</td>";
+                }
+                htmlForBranch+='<td><button type="button" onclick="delUser(this)" class="btn btn-xs btn-white btn-danger"><i class="fa fa-trash-o"></i> 删 除 </button></td>';
+                htmlForBranch+="  <td style='display:none;'>"+nodeId+"</td>";
+                htmlForBranch+="</tr>";
                 count++;
+                console.log(htmlForBranch);
+
             }
         });
-        if('${flag}'=='1' && html != ''){
+        if('${flag}'=='1' && html != ''&&('${lengthFlag}'=='1'||'${lengthFlag}'=='')){
             userTab.html(html);
         }
-        if('${flag}'=='2'){
+        if('${flag}'=='2'&&('${lengthFlag}'=='1'||'${lengthFlag}'=='')){
             userTab.append(html);
         }
+		if ('${lengthFlag}'!='1'&&'${lengthFlag}'!=''){
+            userTab.append(htmlForBranch);
+		}
         closeThisWindow();
     });
 

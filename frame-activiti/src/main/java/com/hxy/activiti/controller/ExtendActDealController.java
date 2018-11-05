@@ -136,12 +136,16 @@ public class ExtendActDealController {
      * @return
      */
     @RequestMapping(value = "userWindow")
-    public String userWindow(String nodeId,String nodeAction,HttpServletRequest request,UserEntity user,Model model){
+    public String userWindow(String nodeId,String nodeAction,String nodeName,String lengthFlag,HttpServletRequest request,UserEntity user,Model model){
         int pageNum = Utils.parseInt(request.getParameter("pageNum"), 1);
         Page<UserEntity> mapPage = actModelerService.userWindowPage(nodeId, pageNum, user.getUserName());
         model.addAttribute("page",mapPage);
         model.addAttribute("url","/act/deal/userWindow");
         model.addAttribute("flag",nodeAction);
+        model.addAttribute("nodeId",nodeId);
+        model.addAttribute("nodeName",nodeName);
+        //并发节点的标志，当前节点下一个节点多于两个
+        model.addAttribute("lengthFlag",lengthFlag);
         model.addAttribute("user",user);
         return "activiti/userWindow.jsp";
     }

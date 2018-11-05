@@ -627,7 +627,11 @@ public class ActModelerServiceImpl implements ActModelerService{
         }
         //获取下个节点信息
         List<PvmActivity> pvmActivities = ActUtils.getNextActNodes(processTaskDto.getDefId(), task.getTaskDefinitionKey(), elMap);
-        for (PvmActivity pvmActivity:pvmActivities) {
+        PvmActivity pvmActivity=null;
+        if (pvmActivities!=null&&pvmActivities.size()!=0){
+            pvmActivity=pvmActivities.get(0);
+        }
+//        for (PvmActivity pvmActivity:pvmActivities) {
             //下一节点为结束节点时，完成任务更新业务表
             if ("endEvent".equals(pvmActivity.getProperty("type"))) {
                 //查询结束节点信息（主要查询回调）
@@ -707,57 +711,83 @@ public class ActModelerServiceImpl implements ActModelerService{
                     userMap.put(Constant.ACT_MUIT_LIST_NAME,Arrays.asList(nextUsers));
                     userMap.putAll(elMap);
                     //完成任务并设置流程变量
-                    taskService.complete(task.getId(),userMap);
-                    //查询流程所有任务
-                    List<Task> taskList = taskService.createTaskQuery().processInstanceId(processTaskDto.getInstanceId()).list();
-                    for (Task t:taskList){
-                        //记录任务日志
-                        ExtendActTasklogEntity tasklogEntity = new ExtendActTasklogEntity();
-                        tasklogEntity.setId(Utils.uuid());
-                        tasklogEntity.setBusId(processTaskDto.getBusId());
-                        tasklogEntity.setDefId(processTaskDto.getDefId());
-                        tasklogEntity.setInstanceId(processTaskDto.getInstanceId());
-                        tasklogEntity.setTaskId(t.getId());
-                        tasklogEntity.setTaskName(t.getName());
-                        tasklogEntity.setAdvanceId(t.getAssignee());
-                        tasklogEntity.setCreateTime(task.getCreateTime());
-                        tasklogService.save(tasklogEntity);
+                    List<Task> taskListForCheck = taskService.createTaskQuery().processInstanceId(processTaskDto.getInstanceId()).list();
+                    for (Task taskCheck : taskListForCheck) {
+                        if (taskCheck.getId().equals(task.getId())){
+                            taskService.complete(task.getId(),userMap);
+                            //taskService.complete(task.getId(),userMap);
+                            //查询流程所有任务
+                            List<Task> taskList = taskService.createTaskQuery().processInstanceId(processTaskDto.getInstanceId()).list();
+                            for (Task t:taskList){
+                                //记录任务日志
+                                ExtendActTasklogEntity tasklogEntity = new ExtendActTasklogEntity();
+                                tasklogEntity.setId(Utils.uuid());
+                                tasklogEntity.setBusId(processTaskDto.getBusId());
+                                tasklogEntity.setDefId(processTaskDto.getDefId());
+                                tasklogEntity.setInstanceId(processTaskDto.getInstanceId());
+                                tasklogEntity.setTaskId(t.getId());
+                                tasklogEntity.setTaskName(t.getName());
+                                tasklogEntity.setAdvanceId(t.getAssignee());
+                                tasklogEntity.setCreateTime(task.getCreateTime());
+                                tasklogService.save(tasklogEntity);
+                            }
+                        }
                     }
                     //下级节点为普通审批节点
                 }else if (Constant.ActAction.APPROVE.getValue().equals(nextNode.getNodeAction())){
                      //完成任务
-                    taskService.complete(task.getId(),elMap);
-                    //会签是否结束
-                    boolean isOver = true;
-                    //当前节点为会签节点
-                    if(Constant.ActAction.MULIT.getValue().equals(nodesetEntity.getNodeAction())){
-                        List<Task> nodeTasks = taskService.createTaskQuery().taskDefinitionKey(nodesetEntity.getNodeId()).processInstanceId(processTaskDto.getInstanceId()).list();
-                        if(nodeTasks.size()>0){
-                            isOver=false;
-                        }
+                    List<Task> taskListForCheck = taskService.createTaskQuery().processInstanceId(processTaskDto.getInstanceId()).list();
+                    //并行分支数
+                    int taskBranchLength=0;
+                    if (taskListForCheck!=null&&taskListForCheck.size()>1){
+                        taskBranchLength=taskListForCheck.size();
                     }
-                    if(isOver){
-                        //如果会签已经完成，则记录下一任务日志
-                        List<Task> tasks = taskService.createTaskQuery().processInstanceId(processTaskDto.getInstanceId()).list();
-                        for (Task t:tasks){
-                            //设置下一个任务的办理人
-                            // TODO: 2017/8/10 如果是下个节点是并行结果，那么这里需要处理下 待开发
-                            taskService.setAssignee(t.getId(), processTaskDto.getNextUserIds());
-                            ExtendActTasklogEntity tasklogEntity = new ExtendActTasklogEntity();
-                            tasklogEntity.setId(Utils.uuid());
-                            tasklogEntity.setBusId(processTaskDto.getBusId());
-                            tasklogEntity.setDefId(processTaskDto.getDefId());
-                            tasklogEntity.setInstanceId(processTaskDto.getInstanceId());
-                            tasklogEntity.setTaskId(t.getId());
-                            tasklogEntity.setTaskName(t.getName());
-                            tasklogEntity.setAdvanceId(processTaskDto.getNextUserIds());
-                            tasklogEntity.setCreateTime(task.getCreateTime());
-                            tasklogService.save(tasklogEntity);
+                    for (Task taskCheck : taskListForCheck) {
+                        if (taskCheck.getId().equals(task.getId())){
+                            taskService.complete(task.getId(),elMap);
+                            //taskService.complete(task.getId(),elMap);
+                            //会签是否结束
+                            boolean isOver = true;
+                            //当前节点为会签节点
+                            if(Constant.ActAction.MULIT.getValue().equals(nodesetEntity.getNodeAction())){
+                                List<Task> nodeTasks = taskService.createTaskQuery().taskDefinitionKey(nodesetEntity.getNodeId()).processInstanceId(processTaskDto.getInstanceId()).list();
+                                if(nodeTasks.size()>0){
+                                    isOver=false;
+                                }
+                            }
+                            if(isOver&&taskBranchLength<=1){
+                                //如果会签已经完成，则记录下一任务日志
+                                List<Task> tasks = taskService.createTaskQuery().processInstanceId(processTaskDto.getInstanceId()).list();
+                                for (Task t:tasks){
+                                    //设置下一个任务的办理人
+                                    // TODO: 2017/8/10 如果是下个节点是并行结果，那么这里需要处理下 待开发
+                                    ExtendActTasklogEntity tasklogEntity = new ExtendActTasklogEntity();
+                                    int lengthFlag = Integer.parseInt(map.get("lengthFlag").toString());
+                                    if (lengthFlag>1){
+                                        String taskDefinitionKey = t.getTaskDefinitionKey();
+                                        String userKey = "userNodeList["+taskDefinitionKey+"]";
+                                        String userId = (String) map.get(userKey);
+                                        taskService.setAssignee(t.getId(),userId);
+                                        tasklogEntity.setAdvanceId(userId);
+                                    }else {
+                                        taskService.setAssignee(t.getId(), processTaskDto.getNextUserIds());
+                                        tasklogEntity.setAdvanceId(processTaskDto.getNextUserIds());
+                                    }
+                                    tasklogEntity.setId(Utils.uuid());
+                                    tasklogEntity.setBusId(processTaskDto.getBusId());
+                                    tasklogEntity.setDefId(processTaskDto.getDefId());
+                                    tasklogEntity.setInstanceId(processTaskDto.getInstanceId());
+                                    tasklogEntity.setTaskId(t.getId());
+                                    tasklogEntity.setTaskName(t.getName());
+                                    tasklogEntity.setCreateTime(task.getCreateTime());
+                                    tasklogService.save(tasklogEntity);
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
+//        }
         //处理任务后，更新任务日志
         ExtendActTasklogEntity tasklogEntity = new ExtendActTasklogEntity();
         tasklogEntity.setTaskId(task.getId());

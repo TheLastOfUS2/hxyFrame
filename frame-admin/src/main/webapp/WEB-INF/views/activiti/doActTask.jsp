@@ -38,7 +38,9 @@
 								<th>名称</th>
 								<th>机构</th>
 								<th>部门</th>
+								<th>节点名称</th>
 								<th>操作</th>
+								<th>节点id</th>
 							</tr>
 							</thead>
 							<tbody>
@@ -72,7 +74,10 @@
         this.isSelectUser=isSelectUser;//是否必需选择下级审批用户
     }
     var processInfo=new processInfo();
+
+    var lengthFlag=1;
 	$(function () {
+        $('#userTab tr').find('th:eq(5)').hide();
 		processInfo.busId='${flowbus.busId}';
 		processInfo.taskId='${taskDto.taskId}';
 		processInfo.instanceId='${flowbus.instanceId}';
@@ -91,6 +96,15 @@
     function clickSubmit() {
         var url ="${webRoot}/act/deal/doActTask";
         var userIds=new Array();
+        var userNodeList ={};
+        $("#userTab").find("tr").each(function(){
+            //获取当前行的td的集合
+            var tdArr = $(this).children();
+            var userId = tdArr.eq(1).find('input').val();//用户id
+            var nodeId = tdArr.eq(5).text()//nodeId
+            console.log(userId+"-----"+nodeId);
+            userNodeList[nodeId] = userId;
+        });
         $("#userTab input[name='userIds']").each(function () {
             userIds.push($(this).val());
         });
@@ -99,6 +113,8 @@
             return false;
         }
         var params ={
+            'lengthFlag':lengthFlag,
+            'userNodeList':userNodeList,
             'busId':processInfo.busId,
             'taskId':processInfo.taskId,
             'instanceId':processInfo.instanceId,
@@ -145,6 +161,7 @@
             if(result.code == '0'){
                 var nextActNodes=result.nextActNodes;
                 var html='';
+                lengthFlag = nextActNodes.length;
                 for (var i=0;i<nextActNodes.length;i++){
                     var node = nextActNodes[i];
                     if(node.nodeType=='5'){
@@ -155,6 +172,7 @@
                     html+='<tr id="node_'+node.nodeId+'" >'+
 							'<input name="nodeId" type="hidden" value="'+node.nodeId+'" ">'+
 							'<input name="nodeAction" type="hidden" value="'+node.nodeAction+'" ">'+
+							'<input name="nodeName" type="hidden" value="'+node.nodeName+'" ">'+
 							'<td>'+node.nodeName+'</td>'+
 							'<td>'+node.nodeTypeName+'</td>'+
 							'<td>'+node.nodeActionName+'</td>';
@@ -181,7 +199,8 @@
     function selectUser(_this) {
         var nodeId=$(_this).parent().parent().children("input[name='nodeId']:hidden").val();
         var nodeAction=$(_this).parent().parent().children("input[name='nodeAction']:hidden").val();
-        var url="${webRoot}/act/deal/userWindow?nodeId="+nodeId+"&nodeAction="+nodeAction;
+        var nodeName=$(_this).parent().parent().children("input[name='nodeName']:hidden").val();
+        var url="${webRoot}/act/deal/userWindow?nodeId="+nodeId+"&nodeAction="+nodeAction+"&nodeName="+nodeName+"&lengthFlag="+lengthFlag;
         //弹框层
         layer.open({
             scrollbar: false,
